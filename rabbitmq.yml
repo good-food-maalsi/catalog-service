@@ -1,0 +1,22 @@
+version: "3.7"
+
+name: good-food
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - good-food
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+networks:
+  good-food:
+    external: true
+
+volumes:
+  rabbitmq-data:
+    external: true

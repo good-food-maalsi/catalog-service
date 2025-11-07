@@ -1,0 +1,16 @@
+meta {
+  name: Create Dish Controller
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{catalogBaseUrl}}/dish
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

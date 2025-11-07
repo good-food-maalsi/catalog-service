@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          String @id @default(uuid()) @db.Uuid
+  name        String @unique @db.VarChar(100)
+  description String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Menus        Menu[]
+  MenuCategory MenuCategory[]
+}
+
+model MenuCategory {
+  menuId     String @db.Uuid
+  categoryId String @db.Uuid
+
+  menu     Menu     @relation(fields: [menuId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([menuId, categoryId])
+}
+
+model Menu {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @db.VarChar(100)
+
+  description  String
+  availability Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Categories   Category[]
+  MenuCategory MenuCategory[]
+  Discounts    Discount[]
+  MenuDiscount MenuDiscount[]
+  Dish         Dish[]
+}
+
+model Discount {
+  id          String @id @default(uuid()) @db.Uuid
+  name        String @unique @db.VarChar(100)
+  code        String @unique @db.VarChar(50)
+  description String
+
+  type     DiscountType
+  value    Float
+  dateFrom DateTime
+  dateTo   DateTime
+
+  Menus Menu[]
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  MenuDiscount MenuDiscount[]
+}
+
+model MenuDiscount {
+  menuId     String @db.Uuid
+  discountId String @db.Uuid
+
+  menu     Menu     @relation(fields: [menuId], references: [id])
+  discount Discount @relation(fields: [discountId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([menuId, discountId])
+}
+
+model Dish {
+  id          String @id @default(uuid()) @db.Uuid
+  franchiseId String @db.Uuid
+
+  name         String  @db.VarChar(100)
+  description  String
+  basePrice    Float
+  availability Boolean @default(true)
+
+  menuId   String  @db.Uuid
+  imageUrl String?
+
+  Menu      Menu     @relation(fields: [menuId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  SPECIAL_OFFER
+}
