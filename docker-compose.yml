@@ -1,20 +1,31 @@
 services:
-  # catalog-service:
-  #   build:
-  #     context: ./
-  #     dockerfile: Dockerfile
-  #   image: catalog-service
-  #   container_name: catalog-service
-  #   command: npm run start
-  #   volumes:
-  #     - ./:/app
-  #   ports:
-  #     - "3004:8080"
-  #   environment:
-  #     - NODE_ENV=development
-  #     - PORT=8080
-  #   networks:
-  #     - good-food
+  catalog-service:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: development
+    image: catalog-service
+    container_name: catalog-service
+    restart: unless-stopped
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - /app/node_modules
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - PGHOST=catalog-postgres
+      - DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@catalog-postgres:5432/${DATABASE_DB}
+    depends_on:
+      - catalog-postgres
+    networks:
+      - good-food
 
   catalog-postgres:
     image: postgres:15
@@ -28,8 +39,8 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
-    # networks:
-    #   - good-food
+    networks:
+      - good-food
 
   # nginx:
   #   image: nginx:1-alpine
@@ -43,9 +54,9 @@ services:
   #   networks:
   #     - good-food
 
-# networks:
-#   good-food:
-#     external: true
+networks:
+  good-food:
+    driver: bridge
 
 volumes:
   pg_data:
