@@ -1,6 +1,25 @@
+# Dependencies
 node_modules
+bun.lockb
 package-lock.json
-volumes
-/generated/prisma
 
+# Database
+volumes
+*.db
+*.db-journal
+
+# Prisma
+/generated/prisma
 /src/generated/prisma
+
+# Environment
+.env.local
+.env.*.local
+
+# Build
+dist
+build
+
+# IDE
+.vscode
+.idea

@@ -1,8 +1,8 @@
 //import swagger from '@elysiajs/swagger';
-import Elysia from 'elysia';
+import { Elysia } from 'elysia';
 
-import { AppRoutes } from './app.routes';
-import { env } from './Utils/env.ts';
+import { AppRoutes } from './app.routes.js';
+import { env } from './Utils/env.js';
 
 const app = new Elysia()
 /*    .use(logger())
