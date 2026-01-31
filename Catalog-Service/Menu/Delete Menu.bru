@@ -1,0 +1,15 @@
+meta {
+  name: Delete Menu
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{catalogBaseUrl}}/menu/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}

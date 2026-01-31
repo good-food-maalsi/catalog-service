@@ -36,23 +36,34 @@ export const DishController = new Elysia()
 
       // Create dish
       .post("/", async ({ body, set, db }) => {
-        const dish = await db.dish.create({
-          data: {
-            franchiseId: body.franchiseId,
-            name: body.name,
-            description: body.description,
-            basePrice: body.basePrice,
-            availability: body.availability ?? true,
-            menuId: body.menuId,
-            ...(body.imageUrl !== undefined && { imageUrl: body.imageUrl }),
-          },
-          include: {
-            Menu: true,
-          },
-        });
+        try {
+          const dish = await db.dish.create({
+            data: {
+              franchiseId: body.franchiseId,
+              name: body.name,
+              description: body.description,
+              basePrice: body.basePrice,
+              availability: body.availability ?? true,
+              menuId: body.menuId,
+              ...(body.imageUrl !== undefined && { imageUrl: body.imageUrl }),
+            },
+            include: {
+              Menu: true,
+            },
+          });
 
-        set.status = 201;
-        return { message: "Dish created successfully", data: dish };
+          set.status = 201;
+          return { message: "Dish created successfully", data: dish };
+        } catch (error) {
+          if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === "P2003"
+          ) {
+            set.status = 400;
+            return { message: "Invalid menuId: Menu does not exist" };
+          }
+          throw error;
+        }
       }, {
         body: t.Object({
           franchiseId: t.String(),
@@ -85,12 +96,15 @@ export const DishController = new Elysia()
 
           return { message: "Dish updated successfully", data: dish };
         } catch (error) {
-          if (
-            error instanceof Prisma.PrismaClientKnownRequestError &&
-            error.code === "P2025"
-          ) {
-            set.status = 404;
-            return { message: "Dish not found" };
+          if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === "P2025") {
+              set.status = 404;
+              return { message: "Dish not found" };
+            }
+            if (error.code === "P2003") {
+              set.status = 400;
+              return { message: "Invalid menuId: Menu does not exist" };
+            }
           }
           throw error;
         }

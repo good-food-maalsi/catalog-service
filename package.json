@@ -14,13 +14,16 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@prisma/client": "^6.1.0",
-    "elysia": "^1.2.21",
+    "@prisma/client": "^6.2.1",
     "dotenv": "^16.4.7",
+    "elysia": "^1.2.21",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "prisma": "^6.16.2"
+    "prisma": "^6.2.1"
+  },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
   }
 }

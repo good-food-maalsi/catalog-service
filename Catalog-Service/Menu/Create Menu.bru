@@ -1,0 +1,19 @@
+meta {
+  name: Create Menu
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{catalogBaseUrl}}/menu
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Summer Special",
+    "description": "Seasonal dishes for the summer period",
+    "availability": true
+  }
+}
