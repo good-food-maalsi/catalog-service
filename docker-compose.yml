@@ -1,0 +1,35 @@
+version: "3.7"
+
+services:
+  catalog-service:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: catalog-service
+    container_name: catalog-service
+    command: npm run start
+    volumes:
+      - ./:/app
+    ports:
+      - "3004:8080"
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+    networks:
+      - good-food
+
+  nginx:
+    image: nginx:1-alpine
+    container_name: catalog-nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8084:80"
+    depends_on:
+      - catalog-service
+    networks:
+      - good-food
+
+networks:
+  good-food:
+    external: true

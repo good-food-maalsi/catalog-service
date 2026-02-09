@@ -1,0 +1,30 @@
+name: good-food
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - good-food
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+  nginx:
+    image: nginx:1-alpine
+    container_name: nginx
+    volumes:
+      - ./nginx-global.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    networks:
+      - good-food
+
+networks:
+  good-food:
+    external: true
+
+volumes:
+  rabbitmq-data:
+    external: true

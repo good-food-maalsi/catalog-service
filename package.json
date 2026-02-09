@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "main": "src/hotloader.js",
+  "scripts": {
+    "start": "nodemon src/index.ts"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.2",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.11.1",
+    "awesome-typescript-loader": "^3.4.1",
+    "nodemon": "^1.19.4",
+    "typescript": "^2.7.2"
+  }
+}
