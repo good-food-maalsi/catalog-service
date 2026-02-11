@@ -24,6 +24,9 @@ const envSchema = z.object({
   // Additional Elysia-specific variables
   ELYSIA_VERSION: z.string().default('0.0.0'),
   RUNTIME: z.enum(['bun', 'edge']).default('bun'),
+
+  // Authentication
+  JWT_PUBLIC_KEY_BASE64: z.string(),
 });
 
 export const env = envSchema.parse(process.env);

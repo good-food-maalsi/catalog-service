@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { authMiddleware } from "./Middleware/auth.middleware.js";
 
 import { DishController } from "./Dish/dish.controller.js";
 import { CategoryController } from "./Category/category.controller.js";

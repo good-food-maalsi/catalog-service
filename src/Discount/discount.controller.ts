@@ -1,9 +1,15 @@
 import { Elysia, t } from "elysia";
 import { Prisma } from "@prisma/client";
 import { prismaPlugin } from "../Plugin/prisma.js";
+import { createAuthMiddleware, Role } from "@good-food/utils";
+import { env } from "../Utils/env.js";
 
 export const DiscountController = new Elysia()
   .use(prismaPlugin)
+  .use(createAuthMiddleware({
+    allowedRoles: [Role.CUSTOMER, Role.ADMIN],
+    env,
+  }))
   .group("/discount", (app) =>
     app
       // Get all discounts
