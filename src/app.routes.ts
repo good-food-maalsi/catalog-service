@@ -1,14 +1,16 @@
 import { Elysia } from "elysia";
 
 import { DishController } from "./Dish/dish.controller.js";
+import { DishIngredientController } from "./Dish/dish-ingredient.controller.js";
 import { CategoryController } from "./Category/category.controller.js";
 import { MenuController } from "./Menu/menu.controller.js";
 import { DiscountController } from "./Discount/discount.controller.js";
 import { prismaPlugin } from "./Plugin/prisma.js";
 
-const routes = new Elysia({ prefix: "api/v1" })
+const routes = new Elysia()
   .use(prismaPlugin)
   .use(DishController)
+  .use(DishIngredientController)
   .use(CategoryController)
   .use(MenuController)
   .use(DiscountController);

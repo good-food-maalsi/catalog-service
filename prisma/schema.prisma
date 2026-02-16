@@ -93,12 +93,27 @@ model Dish {
   basePrice    Float
   availability Boolean @default(true)
 
-  menuId   String  @db.Uuid
+  menuId   String?  @db.Uuid
   imageUrl String?
 
-  Menu      Menu     @relation(fields: [menuId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  Menu        Menu?            @relation(fields: [menuId], references: [id])
+  ingredients DishIngredient[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model DishIngredient {
+  id               String @id @default(uuid()) @db.Uuid
+  dish_id          String @db.Uuid
+  stock_id         String @db.Uuid
+  quantity_required Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  dish Dish @relation(fields: [dish_id], references: [id], onDelete: Cascade)
+
+  @@map("dish_ingredients")
 }
 
 enum DiscountType {

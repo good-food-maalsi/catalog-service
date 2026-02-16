@@ -14,12 +14,15 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@good-food/contracts": "file:../good-food-contracts",
     "@prisma/client": "^6.2.1",
+    "amqplib": "^0.10.9",
     "dotenv": "^16.4.7",
     "elysia": "^1.2.21",
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.10.8",
     "@types/bun": "latest",
     "prisma": "^6.2.1"
   },

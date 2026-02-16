@@ -1,4 +1,6 @@
-import { PrismaClient, DiscountType } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+// import { DiscountType } from "@prisma/client"; // commenté : seed sans discounts
+import { SEED_STOCK_IDS } from "./seed-constants.js";
 
 const prisma = new PrismaClient();
 
@@ -6,6 +8,7 @@ async function main() {
   console.log("Start seeding...");
 
   // Clear existing data
+  await prisma.dishIngredient.deleteMany();
   await prisma.dish.deleteMany();
   await prisma.menuCategory.deleteMany();
   await prisma.menuDiscount.deleteMany();
@@ -68,89 +71,111 @@ async function main() {
     });
   }
 
-  // Create Discounts
-  const summerSale = await prisma.discount.create({
-    data: {
-      name: "Summer Sale",
-      code: "SUMMER20",
-      description: "20% off on all items",
-      type: DiscountType.PERCENTAGE,
-      value: 20,
-      dateFrom: new Date("2024-06-01"),
-      dateTo: new Date("2024-08-31"),
-    },
-  });
+  // Create Discounts (commenté : seed menus/catégories/plats uniquement)
+  // const summerSale = await prisma.discount.create({
+  //   data: {
+  //     name: "Summer Sale",
+  //     code: "SUMMER20",
+  //     description: "20% off on all items",
+  //     type: DiscountType.PERCENTAGE,
+  //     value: 20,
+  //     dateFrom: new Date("2024-06-01"),
+  //     dateTo: new Date("2024-08-31"),
+  //   },
+  // });
+  // const welcomeOffer = await prisma.discount.create({
+  //   data: {
+  //     name: "Welcome Offer",
+  //     code: "WELCOME5",
+  //     description: "€5 off on your first order",
+  //     type: DiscountType.FIXED_AMOUNT,
+  //     value: 5,
+  //     dateFrom: new Date("2024-01-01"),
+  //     dateTo: new Date("2024-12-31"),
+  //   },
+  // });
+  // await prisma.menuDiscount.create({
+  //   data: {
+  //     menuId: mainLevelMenu.id,
+  //     discountId: summerSale.id,
+  //   },
+  // });
 
-  const welcomeOffer = await prisma.discount.create({
+  // Create Dishes (one by one to get ids for DishIngredient)
+  // Aligné avec la franchise seedée quand le script purge-and-seed passe SEED_FRANCHISE_ID
+  const franchiseId =
+    process.env.SEED_FRANCHISE_ID ?? "00000000-0000-0000-0000-000000000001";
+  const classicCheeseburger = await prisma.dish.create({
     data: {
-      name: "Welcome Offer",
-      code: "WELCOME5",
-      description: "€5 off on your first order",
-      type: DiscountType.FIXED_AMOUNT,
-      value: 5,
-      dateFrom: new Date("2024-01-01"),
-      dateTo: new Date("2024-12-31"),
-    },
-  });
-
-  // Link Menus and Discounts
-  await prisma.menuDiscount.create({
-    data: {
-      menuId: mainLevelMenu.id,
-      discountId: summerSale.id,
-    },
-  });
-
-  // Create Dishes
-  const dishes = [
-    {
       name: "Classic Cheeseburger",
       description: "Beef patty, cheddar cheese, lettuce, tomato, and our secret sauce",
       basePrice: 12.5,
       menuId: mainLevelMenu.id,
-      franchiseId: "00000000-0000-0000-0000-000000000001",
+      franchiseId,
     },
-    {
+  });
+  const margheritaPizza = await prisma.dish.create({
+    data: {
       name: "Margherita Pizza",
       description: "San Marzano tomatoes, fresh mozzarella, basil, and extra virgin olive oil",
       basePrice: 14.0,
       menuId: mainLevelMenu.id,
-      franchiseId: "00000000-0000-0000-0000-000000000001",
+      franchiseId,
     },
-    {
+  });
+  const pepperoniPassion = await prisma.dish.create({
+    data: {
       name: "Pepperoni Passion",
       description: "Loads of pepperoni and mozzarella",
       basePrice: 16.5,
       menuId: mainLevelMenu.id,
-      franchiseId: "00000000-0000-0000-0000-000000000001",
+      franchiseId,
     },
-    {
+  });
+  const truffleFries = await prisma.dish.create({
+    data: {
       name: "Truffle Fries",
       description: "Crispy fries tossed in truffle oil and parmesan",
       basePrice: 6.0,
       menuId: mainLevelMenu.id,
-      franchiseId: "00000000-0000-0000-0000-000000000001",
+      franchiseId,
     },
-    {
+  });
+  const chocolateLavaCake = await prisma.dish.create({
+    data: {
       name: "Chocolate Lava Cake",
       description: "Warm chocolate cake with a gooey center",
       basePrice: 8.0,
       menuId: mainLevelMenu.id,
-      franchiseId: "00000000-0000-0000-0000-000000000001",
+      franchiseId,
     },
-    {
+  });
+  await prisma.dish.create({
+    data: {
       name: "Classic Lemonade",
       description: "House-made fresh lemonade",
       basePrice: 4.5,
       menuId: mainLevelMenu.id,
-      franchiseId: "00000000-0000-0000-0000-000000000001",
+      franchiseId,
     },
-  ];
+  });
 
-  for (const dish of dishes) {
-    await prisma.dish.create({
-      data: dish,
-    });
+  // DishIngredient: ingrédients nécessaires par plat (stock_id = SEED_STOCK_IDS)
+  const dishIngredients: Array<{ dish_id: string; stock_id: string; quantity_required: number }> = [
+    { dish_id: classicCheeseburger.id, stock_id: SEED_STOCK_IDS.boeuf, quantity_required: 1 },
+    { dish_id: classicCheeseburger.id, stock_id: SEED_STOCK_IDS.salade, quantity_required: 1 },
+    { dish_id: classicCheeseburger.id, stock_id: SEED_STOCK_IDS.tomate, quantity_required: 1 },
+    { dish_id: classicCheeseburger.id, stock_id: SEED_STOCK_IDS.fromage, quantity_required: 1 },
+    { dish_id: margheritaPizza.id, stock_id: SEED_STOCK_IDS.tomate, quantity_required: 2 },
+    { dish_id: margheritaPizza.id, stock_id: SEED_STOCK_IDS.fromage, quantity_required: 1 },
+    { dish_id: pepperoniPassion.id, stock_id: SEED_STOCK_IDS.tomate, quantity_required: 1 },
+    { dish_id: pepperoniPassion.id, stock_id: SEED_STOCK_IDS.fromage, quantity_required: 1 },
+    { dish_id: pepperoniPassion.id, stock_id: SEED_STOCK_IDS.poulet, quantity_required: 1 },
+    { dish_id: truffleFries.id, stock_id: SEED_STOCK_IDS.fromage, quantity_required: 1 },
+    { dish_id: chocolateLavaCake.id, stock_id: SEED_STOCK_IDS.fromage, quantity_required: 1 },
+  ];
+  for (const di of dishIngredients) {
+    await prisma.dishIngredient.create({ data: di });
   }
 
   console.log("Seeding finished.");

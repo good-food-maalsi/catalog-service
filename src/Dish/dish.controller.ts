@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { Prisma } from "@prisma/client";
 import { prismaPlugin } from "../Plugin/prisma.js";
+import { createDishSchema, updateDishSchema } from "@good-food/contracts/catalog";
 
 export const DishController = new Elysia()
   .use(prismaPlugin)
@@ -23,6 +24,7 @@ export const DishController = new Elysia()
           where: { id: params.id },
           include: {
             Menu: true,
+            ingredients: true,
           },
         });
 
@@ -36,6 +38,11 @@ export const DishController = new Elysia()
 
       // Create dish
       .post("/", async ({ body, set, db }) => {
+        const parsed = createDishSchema.safeParse(body);
+        if (!parsed.success) {
+          set.status = 400;
+          return { error: parsed.error.issues };
+        }
         try {
           const dish = await db.dish.create({
             data: {
@@ -44,7 +51,7 @@ export const DishController = new Elysia()
               description: body.description,
               basePrice: body.basePrice,
               availability: body.availability ?? true,
-              menuId: body.menuId,
+              ...(body.menuId !== undefined && { menuId: body.menuId }),
               ...(body.imageUrl !== undefined && { imageUrl: body.imageUrl }),
             },
             include: {
@@ -71,13 +78,18 @@ export const DishController = new Elysia()
           description: t.String(),
           basePrice: t.Number(),
           availability: t.Optional(t.Boolean()),
-          menuId: t.String(),
+          menuId: t.Optional(t.String()),
           imageUrl: t.Optional(t.String()),
         }),
       })
 
       // Update dish
       .put("/:id", async ({ params, body, set, db }) => {
+        const parsed = updateDishSchema.safeParse(body);
+        if (!parsed.success) {
+          set.status = 400;
+          return { error: parsed.error.issues };
+        }
         try {
           const dish = await db.dish.update({
             where: { id: params.id },

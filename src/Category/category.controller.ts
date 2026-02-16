@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { Prisma } from "@prisma/client";
 import { prismaPlugin } from "../Plugin/prisma.js";
+import { createCatalogCategorySchema, updateCatalogCategorySchema } from "@good-food/contracts/catalog";
 
 export const CategoryController = new Elysia()
   .use(prismaPlugin)
@@ -35,6 +36,11 @@ export const CategoryController = new Elysia()
 
       // Create category
       .post("/", async ({ body, set, db }) => {
+        const parsed = createCatalogCategorySchema.safeParse(body);
+        if (!parsed.success) {
+          set.status = 400;
+          return { error: parsed.error.issues };
+        }
         try {
           const category = await db.category.create({
             data: {
@@ -64,6 +70,11 @@ export const CategoryController = new Elysia()
 
       // Update category
       .put("/:id", async ({ params, body, set, db }) => {
+        const parsed = updateCatalogCategorySchema.safeParse(body);
+        if (!parsed.success) {
+          set.status = 400;
+          return { error: parsed.error.issues };
+        }
         try {
           const category = await db.category.update({
             where: { id: params.id },

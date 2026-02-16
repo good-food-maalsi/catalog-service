@@ -22,8 +22,10 @@ services:
       - PORT=8080
       - PGHOST=catalog-postgres
       - DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@catalog-postgres:5432/${DATABASE_DB}
+      - RABBITMQ_URL=amqp://admin:password@rabbitmq:5672
     depends_on:
       - catalog-postgres
+      - rabbitmq
     networks:
       - good-food
 

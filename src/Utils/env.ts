@@ -24,6 +24,9 @@ const envSchema = z.object({
   // Additional Elysia-specific variables
   ELYSIA_VERSION: z.string().default('0.0.0'),
   RUNTIME: z.enum(['bun', 'edge']).default('bun'),
+
+  // Messaging
+  RABBITMQ_URL: z.string().default('amqp://admin:password@localhost:5672'),
 });
 
 export const env = envSchema.parse(process.env);

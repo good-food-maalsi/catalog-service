@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { Prisma } from "@prisma/client";
 import { prismaPlugin } from "../Plugin/prisma.js";
+import { createDiscountSchema, updateDiscountSchema } from "@good-food/contracts/catalog";
 
 export const DiscountController = new Elysia()
   .use(prismaPlugin)
@@ -35,6 +36,11 @@ export const DiscountController = new Elysia()
 
       // Create discount
       .post("/", async ({ body, set, db }) => {
+        const parsed = createDiscountSchema.safeParse(body);
+        if (!parsed.success) {
+          set.status = 400;
+          return { error: parsed.error.issues };
+        }
         try {
           const discount = await db.discount.create({
             data: {
@@ -78,6 +84,11 @@ export const DiscountController = new Elysia()
 
       // Update discount
       .put("/:id", async ({ params, body, set, db }) => {
+        const parsed = updateDiscountSchema.safeParse(body);
+        if (!parsed.success) {
+          set.status = 400;
+          return { error: parsed.error.issues };
+        }
         try {
           const discount = await db.discount.update({
             where: { id: params.id },

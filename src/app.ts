@@ -3,6 +3,7 @@ import { Elysia } from 'elysia';
 
 import { AppRoutes } from './app.routes.js';
 import { env } from './Utils/env.js';
+import { startConsumer } from './Messaging/rabbitmq.consumer.js';
 
 const app = new Elysia()
 /*    .use(logger())
@@ -26,4 +27,8 @@ app.listen({ port: env.PORT });
 
 console.log(
     `🦊 Elysia is running`,
+);
+
+startConsumer().catch((err) =>
+  console.error('[RabbitMQ] consumer init failed (non-fatal):', err)
 );

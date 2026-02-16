@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { Prisma } from "@prisma/client";
 import { prismaPlugin } from "../Plugin/prisma.js";
+import { createMenuSchema, updateMenuSchema } from "@good-food/contracts/catalog";
 
 export const MenuController = new Elysia()
   .use(prismaPlugin)
@@ -39,6 +40,11 @@ export const MenuController = new Elysia()
 
       // Create menu
       .post("/", async ({ body, set, db }) => {
+        const parsed = createMenuSchema.safeParse(body);
+        if (!parsed.success) {
+          set.status = 400;
+          return { error: parsed.error.issues };
+        }
         const menu = await db.menu.create({
           data: {
             name: body.name,
@@ -59,6 +65,11 @@ export const MenuController = new Elysia()
 
       // Update menu
       .put("/:id", async ({ params, body, set, db }) => {
+        const parsed = updateMenuSchema.safeParse(body);
+        if (!parsed.success) {
+          set.status = 400;
+          return { error: parsed.error.issues };
+        }
         try {
           const menu = await db.menu.update({
             where: { id: params.id },
