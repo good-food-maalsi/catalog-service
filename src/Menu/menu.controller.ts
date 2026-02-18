@@ -3,21 +3,100 @@ import { Prisma } from "@prisma/client";
 import { prismaPlugin } from "../Plugin/prisma.js";
 import { createMenuSchema, updateMenuSchema } from "@good-food/contracts/catalog";
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export const MenuController = new Elysia()
   .use(prismaPlugin)
   .group("/menu", (app) =>
     app
-      // Get all menus
-      .get("/", async ({ db }) => {
-        const menus = await db.menu.findMany({
-          include: {
-            Categories: true,
-            Discounts: true,
-            Dish: true,
-          },
-        });
-        return { data: menus };
-      })
+      // Get all menus (optionally filtered by categoryId)
+      .get(
+        "/",
+        async ({ db, query, set }) => {
+          const rawCategoryId =
+            typeof query.categoryId === "string"
+              ? query.categoryId.trim()
+              : undefined;
+          const rawFranchiseId =
+            typeof query.franchiseId === "string"
+              ? query.franchiseId.trim()
+              : undefined;
+
+          const categoryId =
+            rawCategoryId && UUID_REGEX.test(rawCategoryId)
+              ? rawCategoryId
+              : undefined;
+          const franchiseId =
+            rawFranchiseId && UUID_REGEX.test(rawFranchiseId)
+              ? rawFranchiseId
+              : undefined;
+
+          if (rawCategoryId != null && rawCategoryId !== "" && !categoryId) {
+            set.status = 400;
+            return { message: "Invalid categoryId format (UUID expected)" };
+          }
+          if (rawFranchiseId != null && rawFranchiseId !== "" && !franchiseId) {
+            set.status = 400;
+            return { message: "Invalid franchiseId format (UUID expected)" };
+          }
+
+          if (categoryId) {
+            const category = await db.category.findUnique({
+              where: { id: categoryId },
+            });
+            if (!category) {
+              set.status = 400;
+              return { message: "Category not found" };
+            }
+          }
+
+          const menuIdsInCategory = categoryId
+            ? (
+                await db.menuCategory.findMany({
+                  where: { categoryId },
+                  select: { menuId: true },
+                })
+              ).map((r) => r.menuId)
+            : null;
+
+          const menuIdsForFranchise = franchiseId
+            ? (
+                await db.dish.findMany({
+                  where: { franchiseId },
+                  select: { menuId: true },
+                  distinct: ["menuId"],
+                })
+              )
+                .map((d) => d.menuId)
+                .filter((id): id is string => id != null)
+            : null;
+
+          const conditions: Prisma.MenuWhereInput[] = [];
+          if (menuIdsInCategory !== null)
+            conditions.push({ id: { in: menuIdsInCategory } });
+          if (menuIdsForFranchise !== null)
+            conditions.push({ id: { in: menuIdsForFranchise } });
+          const where: Prisma.MenuWhereInput =
+            conditions.length > 0 ? { AND: conditions } : {};
+
+          const menus = await db.menu.findMany({
+            where,
+            include: {
+              Categories: true,
+              Discounts: true,
+              Dish: true,
+            },
+          });
+          return { data: menus };
+        },
+        {
+          query: t.Object({
+            categoryId: t.Optional(t.String()),
+            franchiseId: t.Optional(t.String()),
+          }),
+        }
+      )
 
       // Get menu by ID
       .get("/:id", async ({ params, db, set }) => {

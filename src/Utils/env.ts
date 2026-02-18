@@ -9,7 +9,7 @@ const envSchema = z.object({
 
   // Database
   PGHOST: z.string().default("localhost"),
-  PGPORT: z.string().default("5432"),
+  PGPORT: z.string().default("5434"),
   PGDATABASE: z.string().default("catalogdb"),
   PGUSER: z.string().default("admin"),
   PGPASSWORD: z.string(),

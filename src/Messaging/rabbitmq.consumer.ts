@@ -8,8 +8,23 @@ const QUEUE = 'catalog.stock.events';
 const ROUTING_KEY = 'stock.deleted';
 
 export async function startConsumer(): Promise<void> {
-  const conn = await amqp.connect(env.RABBITMQ_URL);
+  const conn = await amqp.connect(env.RABBITMQ_URL, { heartbeat: 120 });
+
+  // Empêcher les erreurs RabbitMQ de faire crasher le processus
+  conn.on('error', (err) =>
+    console.error('[RabbitMQ] connection error (non-fatal):', err?.message ?? err)
+  );
+  conn.on('close', () =>
+    console.warn('[RabbitMQ] connection closed (reconnect not implemented)')
+  );
+
   const channel = await conn.createChannel();
+  channel.on('error', (err) =>
+    console.error('[RabbitMQ] channel error (non-fatal):', err?.message ?? err)
+  );
+  channel.on('close', () =>
+    console.warn('[RabbitMQ] channel closed')
+  );
 
   await channel.assertExchange(EXCHANGE, 'topic', { durable: true });
   await channel.assertQueue(QUEUE, { durable: true });
