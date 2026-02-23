@@ -1,0 +1,9 @@
+# === Production Dockerfile ===
+FROM oven/bun:1-alpine
+WORKDIR /app
+COPY package.json bun.lockb* ./
+RUN bun install --production
+COPY . .
+RUN bunx prisma generate
+EXPOSE 8080
+CMD ["bun", "run", "src/app.ts"]

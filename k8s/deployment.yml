@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: catalog-service
+    labels:
+        app: catalog-service
+spec:
+    replicas: 1
+    revisionHistoryLimit: 3
+    selector:
+        matchLabels:
+            app: catalog-service
+    template:
+        metadata:
+            labels:
+                app: catalog-service
+        spec:
+            imagePullSecrets:
+                - name: scw-registry-secret
+            containers:
+                - name: catalog-service
+                  image: rg.fr-par.scw.cloud/good-food-container-registry/catalog-service:latest
+                  ports:
+                      - containerPort: 8080
+                  envFrom:
+                      - configMapRef:
+                            name: catalog-service-config
+                      - secretRef:
+                            name: catalog-service-db-secret
+                      - secretRef:
+                            name: good-food-jwt-secret
+                  resources:
+                      requests:
+                          memory: "128Mi"
+                          cpu: "100m"
+                      limits:
+                          memory: "512Mi"
+                          cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: catalog-service
+spec:
+    selector:
+        app: catalog-service
+    ports:
+        - protocol: TCP
+          port: 8080
+          targetPort: 8080

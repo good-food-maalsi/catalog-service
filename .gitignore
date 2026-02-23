@@ -1,6 +1,14 @@
 node_modules
 package-lock.json
 volumes
+
+# Environment variables
+.env
+.env.*
+!.env.example
 /generated/prisma
 
 /src/generated/prisma
+
+# Kubernetes secrets (applied manually, not via ArgoCD)
+k8s-secrets/

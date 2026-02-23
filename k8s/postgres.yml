@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+    name: catalog-postgres
+    labels:
+        app: catalog-postgres
+spec:
+    serviceName: catalog-postgres
+    replicas: 1
+    selector:
+        matchLabels:
+            app: catalog-postgres
+    template:
+        metadata:
+            labels:
+                app: catalog-postgres
+        spec:
+            containers:
+                - name: postgres
+                  image: postgres:15-alpine
+                  ports:
+                      - containerPort: 5432
+                  env:
+                      - name: POSTGRES_USER
+                        valueFrom:
+                            secretKeyRef:
+                                name: catalog-service-db-secret
+                                key: POSTGRES_USER
+                      - name: POSTGRES_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: catalog-service-db-secret
+                                key: POSTGRES_PASSWORD
+                      - name: POSTGRES_DB
+                        valueFrom:
+                            secretKeyRef:
+                                name: catalog-service-db-secret
+                                key: POSTGRES_DB
+                  volumeMounts:
+                      - name: postgres-data
+                        mountPath: /var/lib/postgresql/data
+                  resources:
+                      requests:
+                          memory: "128Mi"
+                          cpu: "100m"
+                      limits:
+                          memory: "512Mi"
+                          cpu: "500m"
+    volumeClaimTemplates:
+        - metadata:
+              name: postgres-data
+          spec:
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                  requests:
+                      storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: catalog-postgres
+spec:
+    selector:
+        app: catalog-postgres
+    ports:
+        - protocol: TCP
+          port: 5432
+          targetPort: 5432
