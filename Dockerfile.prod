@@ -5,6 +5,6 @@ WORKDIR /app
 COPY package.json bun.lockb* ./
 RUN bun install --production
 COPY . .
-RUN bunx prisma generate
+# Removed prisma generate as this service doesn't use it
 EXPOSE 8080
 CMD ["bun", "run", "src/app.ts"]
