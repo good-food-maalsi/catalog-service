@@ -7,7 +7,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.16.2",
+    "elysia": "^1.4.21", "cors": "^1.0.0",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {
