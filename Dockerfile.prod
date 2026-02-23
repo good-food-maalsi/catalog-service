@@ -2,9 +2,9 @@
 FROM oven/bun:1-alpine
 COPY good-food-contracts /good-food-contracts
 WORKDIR /app
-COPY package.json bun.lockb* ./
+COPY package.json bun.lockb* bun.lock* ./
 RUN bun install --production
 COPY . .
-# Removed prisma generate as this service doesn't use it
+# No prisma generate needed for catalog-service
 EXPOSE 8080
 CMD ["bun", "run", "src/app.ts"]
