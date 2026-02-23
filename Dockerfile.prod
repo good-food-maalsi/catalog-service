@@ -1,5 +1,6 @@
 # === Production Dockerfile ===
 FROM oven/bun:1-alpine
+COPY good-food-contracts /good-food-contracts
 WORKDIR /app
 COPY package.json bun.lockb* ./
 RUN bun install --production

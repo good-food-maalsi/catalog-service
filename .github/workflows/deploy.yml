@@ -22,6 +22,12 @@ jobs:
                   username: nologin
                   password: ${{ secrets.SCW_SECRET_KEY }}
 
+            - name: Checkout good-food-contracts
+              uses: actions/checkout@v4
+              with:
+                  repository: good-food-maalsi/good-food-contracts
+                  path: good-food-contracts
+
             - name: Build and tag Docker image
               run: |
                   docker build -f Dockerfile.prod \
