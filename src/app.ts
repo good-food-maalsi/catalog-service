@@ -4,7 +4,7 @@ import Elysia from 'elysia';
 import { AppRoutes } from './app.routes';
 import { env } from './Utils/env.ts';
 
-const app = new Elysia()
+const app = new Elysia({ prefix: '/catalog' })
 /*    .use(logger())
     .use(
         swagger({
