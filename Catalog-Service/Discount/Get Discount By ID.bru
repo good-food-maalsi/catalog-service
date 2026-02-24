@@ -1,0 +1,15 @@
+meta {
+  name: Get Discount By ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{catalogBaseUrl}}/discount/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}

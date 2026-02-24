@@ -1,0 +1,31 @@
+meta {
+  name: Update Dish
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{catalogBaseUrl}}/dish/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 550e8400-e29b-41d4-a716-446655440000
+}
+
+body:json {
+  {
+    "name": "Pizza Margherita Supreme",
+    "description": "Premium Italian pizza with extra mozzarella",
+    "basePrice": 15.99,
+    "availability": true,
+    "menuId": "550e8400-e29b-41d4-a716-446655440001",
+    "imageUrl": "https://example.com/images/pizza-margherita-supreme.jpg"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

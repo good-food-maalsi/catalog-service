@@ -1,0 +1,23 @@
+meta {
+  name: Create Discount
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{catalogBaseUrl}}/discount
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Winter Sale",
+    "code": "WINTER20",
+    "description": "20% off for the winter season",
+    "type": "PERCENTAGE",
+    "value": 20.0,
+    "dateFrom": "2026-12-01T00:00:00Z",
+    "dateTo": "2027-02-28T23:59:59Z"
+  }
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Update Discount
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{catalogBaseUrl}}/discount/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+body:json {
+  {
+    "name": "Super Winter Sale",
+    "code": "WINTER30",
+    "description": "30% off for the winter season",
+    "type": "PERCENTAGE",
+    "value": 30.0,
+    "dateFrom": "2026-12-01T00:00:00Z",
+    "dateTo": "2027-02-28T23:59:59Z"
+  }
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Delete Discount
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{catalogBaseUrl}}/discount/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}

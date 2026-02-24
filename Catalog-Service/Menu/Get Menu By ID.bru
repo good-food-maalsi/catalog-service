@@ -1,0 +1,15 @@
+meta {
+  name: Get Menu By ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{catalogBaseUrl}}/menu/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}

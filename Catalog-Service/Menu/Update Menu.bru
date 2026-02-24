@@ -1,0 +1,23 @@
+meta {
+  name: Update Menu
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{catalogBaseUrl}}/menu/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+body:json {
+  {
+    "name": "Winter Special",
+    "description": "Seasonal dishes for the winter period",
+    "availability": true
+  }
+}

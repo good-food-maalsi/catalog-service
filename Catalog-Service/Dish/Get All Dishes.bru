@@ -1,0 +1,20 @@
+meta {
+  name: Get All Dishes
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{catalogBaseUrl}}/dish
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~menuId: 550e8400-e29b-41d4-a716-446655440001
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

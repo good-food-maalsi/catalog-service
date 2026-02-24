@@ -1,13 +1,25 @@
 meta {
-  name: Create Dish Controller
+  name: Create Dish
   type: http
-  seq: 1
+  seq: 3
 }
 
 post {
   url: {{catalogBaseUrl}}/dish
-  body: none
+  body: json
   auth: inherit
+}
+
+body:json {
+  {
+    "franchiseId": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Pizza Margherita",
+    "description": "Classic Italian pizza with tomato sauce, mozzarella, and basil",
+    "basePrice": 12.99,
+    "availability": true,
+    "menuId": "550e8400-e29b-41d4-a716-446655440001",
+    "imageUrl": "https://example.com/images/pizza-margherita.jpg"
+  }
 }
 
 settings {

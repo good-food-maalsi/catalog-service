@@ -1,35 +1,65 @@
-version: "3.7"
-
 services:
   catalog-service:
     build:
       context: ./
       dockerfile: Dockerfile
+      target: development
     image: catalog-service
     container_name: catalog-service
-    command: npm run start
+    restart: unless-stopped
     volumes:
-      - ./:/app
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - /app/node_modules
     ports:
-      - "3004:8080"
+      - "8080:8080"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=development
       - PORT=8080
+      - PGHOST=catalog-postgres
+      - DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@catalog-postgres:5432/${DATABASE_DB}
+      - RABBITMQ_URL=amqp://admin:password@rabbitmq:5672
+    depends_on:
+      - catalog-postgres
+      - rabbitmq
     networks:
       - good-food
 
-  nginx:
-    image: nginx:1-alpine
-    container_name: catalog-nginx
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+  catalog-postgres:
+    image: postgres:15
+    container_name: catalog-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_DB}
     ports:
-      - "8084:80"
-    depends_on:
-      - catalog-service
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
     networks:
       - good-food
+
+  # nginx:
+  #   image: nginx:1-alpine
+  #   container_name: catalog-nginx
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf
+  #   ports:
+  #     - "8084:80"
+  #   depends_on:
+  #     - catalog-service
+  #   networks:
+  #     - good-food
 
 networks:
   good-food:
-    external: true
+    driver: bridge
+
+volumes:
+  pg_data:
+    driver: local
