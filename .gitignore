@@ -1,14 +1,33 @@
+# Dependencies
 node_modules
+bun.lockb
 package-lock.json
+
+# Database
 volumes
 
 # Environment variables
 .env
 .env.*
 !.env.example
-/generated/prisma
+*.db
+*.db-journal
 
+# Prisma
+/generated/prisma
 /src/generated/prisma
 
 # Kubernetes secrets (applied manually, not via ArgoCD)
 k8s-secrets/
+
+# Environment
+.env.local
+.env.*.local
+
+# Build
+dist
+build
+
+# IDE
+.vscode
+.idea

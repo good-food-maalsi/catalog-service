@@ -1,16 +1,16 @@
 import { Elysia, t } from "elysia";
 import { Prisma } from "@prisma/client";
 import { prismaPlugin } from "../Plugin/prisma.js";
-import { createDishSchema, updateDishSchema } from "@good-food/contracts/catalog";
+import { createMenuSchema, updateMenuSchema } from "@good-food/contracts/catalog";
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export const DishController = new Elysia()
+export const MenuController = new Elysia()
   .use(prismaPlugin)
-  .group("/dish", (app) =>
+  .group("/menu", (app) =>
     app
-      // Get all dishes (with optional categoryId, menuId)
+      // Get all menus (optionally filtered by categoryId)
       .get(
         "/",
         async ({ db, query, set }) => {
@@ -18,8 +18,6 @@ export const DishController = new Elysia()
             typeof query.categoryId === "string"
               ? query.categoryId.trim()
               : undefined;
-          const rawMenuId =
-            typeof query.menuId === "string" ? query.menuId.trim() : undefined;
           const rawFranchiseId =
             typeof query.franchiseId === "string"
               ? query.franchiseId.trim()
@@ -29,8 +27,6 @@ export const DishController = new Elysia()
             rawCategoryId && UUID_REGEX.test(rawCategoryId)
               ? rawCategoryId
               : undefined;
-          const menuId =
-            rawMenuId && UUID_REGEX.test(rawMenuId) ? rawMenuId : undefined;
           const franchiseId =
             rawFranchiseId && UUID_REGEX.test(rawFranchiseId)
               ? rawFranchiseId
@@ -55,7 +51,7 @@ export const DishController = new Elysia()
             }
           }
 
-          const categoryMenuIds = categoryId
+          const menuIdsInCategory = categoryId
             ? (
                 await db.menuCategory.findMany({
                   where: { categoryId },
@@ -64,134 +60,113 @@ export const DishController = new Elysia()
               ).map((r) => r.menuId)
             : null;
 
-          const whereConditions: Prisma.DishWhereInput[] = [];
+          const menuIdsForFranchise = franchiseId
+            ? (
+                await db.dish.findMany({
+                  where: { franchiseId },
+                  select: { menuId: true },
+                  distinct: ["menuId"],
+                })
+              )
+                .map((d) => d.menuId)
+                .filter((id): id is string => id != null)
+            : null;
 
-          if (franchiseId) whereConditions.push({ franchiseId });
-          if (menuId) whereConditions.push({ menuId });
-          if (categoryMenuIds !== null)
-            whereConditions.push({
-              menuId: { in: categoryMenuIds },
-            });
+          const conditions: Prisma.MenuWhereInput[] = [];
+          if (menuIdsInCategory !== null)
+            conditions.push({ id: { in: menuIdsInCategory } });
+          if (menuIdsForFranchise !== null)
+            conditions.push({ id: { in: menuIdsForFranchise } });
+          const where: Prisma.MenuWhereInput =
+            conditions.length > 0 ? { AND: conditions } : {};
 
-          const where: Prisma.DishWhereInput =
-            whereConditions.length > 0 ? { AND: whereConditions } : {};
-
-          const dishes = await db.dish.findMany({
+          const menus = await db.menu.findMany({
             where,
             include: {
-              Menu: true,
+              Categories: true,
+              Discounts: true,
+              Dish: true,
             },
           });
-          return { data: dishes };
+          return { data: menus };
         },
         {
           query: t.Object({
-            menuId: t.Optional(t.String()),
             categoryId: t.Optional(t.String()),
             franchiseId: t.Optional(t.String()),
           }),
         }
       )
 
-      // Get dish by ID
+      // Get menu by ID
       .get("/:id", async ({ params, db, set }) => {
-        const dish = await db.dish.findUnique({
+        const menu = await db.menu.findUnique({
           where: { id: params.id },
           include: {
-            Menu: true,
-            ingredients: true,
+            Categories: true,
+            Discounts: true,
+            Dish: true,
           },
         });
 
-        if (!dish) {
+        if (!menu) {
           set.status = 404;
-          return { message: "Dish not found" };
+          return { message: "Menu not found" };
         }
 
-        return { data: dish };
+        return { data: menu };
       })
 
-      // Create dish
+      // Create menu
       .post("/", async ({ body, set, db }) => {
-        const parsed = createDishSchema.safeParse(body);
+        const parsed = createMenuSchema.safeParse(body);
         if (!parsed.success) {
           set.status = 400;
           return { error: parsed.error.issues };
         }
-        try {
-          const dish = await db.dish.create({
-            data: {
-              franchiseId: body.franchiseId,
-              name: body.name,
-              description: body.description,
-              basePrice: body.basePrice,
-              availability: body.availability ?? true,
-              ...(body.menuId !== undefined && { menuId: body.menuId }),
-              ...(body.imageUrl !== undefined && { imageUrl: body.imageUrl }),
-            },
-            include: {
-              Menu: true,
-            },
-          });
+        const menu = await db.menu.create({
+          data: {
+            name: body.name,
+            description: body.description,
+            availability: body.availability ?? true,
+          },
+        });
 
-          set.status = 201;
-          return { message: "Dish created successfully", data: dish };
-        } catch (error) {
-          if (
-            error instanceof Prisma.PrismaClientKnownRequestError &&
-            error.code === "P2003"
-          ) {
-            set.status = 400;
-            return { message: "Invalid menuId: Menu does not exist" };
-          }
-          throw error;
-        }
+        set.status = 201;
+        return { message: "Menu created successfully", data: menu };
       }, {
         body: t.Object({
-          franchiseId: t.String(),
           name: t.String(),
           description: t.String(),
-          basePrice: t.Number(),
           availability: t.Optional(t.Boolean()),
-          menuId: t.Optional(t.String()),
-          imageUrl: t.Optional(t.String()),
         }),
       })
 
-      // Update dish
+      // Update menu
       .put("/:id", async ({ params, body, set, db }) => {
-        const parsed = updateDishSchema.safeParse(body);
+        const parsed = updateMenuSchema.safeParse(body);
         if (!parsed.success) {
           set.status = 400;
           return { error: parsed.error.issues };
         }
         try {
-          const dish = await db.dish.update({
+          const menu = await db.menu.update({
             where: { id: params.id },
             data: {
               ...(body.name !== undefined && { name: body.name }),
               ...(body.description !== undefined && { description: body.description }),
-              ...(body.basePrice !== undefined && { basePrice: body.basePrice }),
               ...(body.availability !== undefined && { availability: body.availability }),
-              ...(body.menuId !== undefined && { menuId: body.menuId }),
-              ...(body.imageUrl !== undefined && { imageUrl: body.imageUrl }),
-            },
-            include: {
-              Menu: true,
             },
           });
 
-          return { message: "Dish updated successfully", data: dish };
+          return { message: "Menu updated successfully", data: menu };
         } catch (error) {
-          if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === "P2025") {
-              set.status = 404;
-              return { message: "Dish not found" };
-            }
-            if (error.code === "P2003") {
-              set.status = 400;
-              return { message: "Invalid menuId: Menu does not exist" };
-            }
+          if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === "P2025"
+          ) {
+            set.status = 404;
+            return { message: "Menu not found" };
           }
           throw error;
         }
@@ -199,28 +174,25 @@ export const DishController = new Elysia()
         body: t.Object({
           name: t.Optional(t.String()),
           description: t.Optional(t.String()),
-          basePrice: t.Optional(t.Number()),
           availability: t.Optional(t.Boolean()),
-          menuId: t.Optional(t.String()),
-          imageUrl: t.Optional(t.String()),
         }),
       })
 
-      // Delete dish
+      // Delete menu
       .delete("/:id", async ({ params, set, db }) => {
         try {
-          await db.dish.delete({
+          await db.menu.delete({
             where: { id: params.id },
           });
 
-          return { message: "Dish deleted successfully" };
+          return { message: "Menu deleted successfully" };
         } catch (error) {
           if (
             error instanceof Prisma.PrismaClientKnownRequestError &&
             error.code === "P2025"
           ) {
             set.status = 404;
-            return { message: "Dish not found" };
+            return { message: "Menu not found" };
           }
           throw error;
         }

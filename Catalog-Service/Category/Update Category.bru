@@ -1,0 +1,22 @@
+meta {
+  name: Update Category
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{catalogBaseUrl}}/category/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+body:json {
+  {
+    "name": "Italian Pizzas",
+    "description": "Authentic Italian pizzas"
+  }
+}
