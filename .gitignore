@@ -5,12 +5,20 @@ package-lock.json
 
 # Database
 volumes
+
+# Environment variables
+.env
+.env.*
+!.env.example
 *.db
 *.db-journal
 
 # Prisma
 /generated/prisma
 /src/generated/prisma
+
+# Kubernetes secrets (applied manually, not via ArgoCD)
+k8s-secrets/
 
 # Environment
 .env.local

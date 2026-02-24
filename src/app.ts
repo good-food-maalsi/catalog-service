@@ -5,7 +5,7 @@ import { AppRoutes } from './app.routes.js';
 import { env } from './Utils/env.js';
 import { startConsumer } from './Messaging/rabbitmq.consumer.js';
 
-const app = new Elysia()
+const app = new Elysia({ prefix: '/catalog' })
 /*    .use(logger())
     .use(
         swagger({

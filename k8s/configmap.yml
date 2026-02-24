@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: catalog-service-config
+data:
+    NODE_ENV: "production"
+    PORT: "8080"
+    RUNTIME: "bun"
+    PGHOST: "catalog-postgres"
+    PGPORT: "5432"
+    PGDATABASE: "catalog_db"
+    PGCONNECT_TIMEOUT: "30"
+    PGIDLE_TIMEOUT: "0"
