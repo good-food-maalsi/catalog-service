@@ -37,6 +37,8 @@ spec:
                             name: catalog-service-db-secret
                       - secretRef:
                             name: good-food-jwt-secret
+                      - secretRef:
+                            name: rabbitmq-secret
 ---
 apiVersion: v1
 kind: Service
