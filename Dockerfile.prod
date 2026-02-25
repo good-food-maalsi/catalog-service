@@ -8,6 +8,8 @@ WORKDIR /app
 COPY package.json bun.lockb* bun.lock* ./
 RUN bun install --production --no-frozen-lockfile
 COPY . .
-# No prisma generate needed for catalog-service
+# Provide dummy DATABASE_URL for prisma generate during docker build
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+RUN bunx prisma generate
 EXPOSE 8080
 CMD ["bun", "run", "src/app.ts"]
