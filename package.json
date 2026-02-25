@@ -17,7 +17,7 @@
   "dependencies": {
     "@elysiajs/cors": "^1.4.1",
     "@good-food/contracts": "file:../good-food-contracts",
-    "@good-food/utils": "^1.0.9",
+    "@good-food/utils": "^1.1.0",
     "@prisma/client": "^6.2.1",
     "amqplib": "^0.10.9",
     "cors": "^1.0.0",
