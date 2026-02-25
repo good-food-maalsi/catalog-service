@@ -19,7 +19,7 @@ spec:
                 - name: scw-registry-secret
             containers:
                 - name: catalog-service
-                  image: rg.fr-par.scw.cloud/good-food-container-registry/catalog-service:06d66b8c37176a90391f5034d16ed48e2dd5f273
+                  image: rg.fr-par.scw.cloud/good-food-container-registry/catalog-service:53c6013161c7cd5e0c6c4deeeb86fb76c8bf9ed7
                   imagePullPolicy: Always
                   ports:
                       - containerPort: 8080
