@@ -5,6 +5,7 @@
     "": {
       "name": "catalog-service",
       "dependencies": {
+        "@elysiajs/cors": "^1.4.1",
         "@good-food/contracts": "file:../good-food-contracts",
         "@good-food/utils": "^1.0.0",
         "@prisma/client": "^6.2.1",
@@ -24,6 +25,8 @@
   },
   "packages": {
     "@borewit/text-codec": ["@borewit/text-codec@0.2.1", "", {}, "sha512-k7vvKPbf7J2fZ5klGRD9AeKfUvojuZIQ3BT5u7Jfv+puwXkUBUT5PVyMDfJZpy30CBDXGMgw7fguK/lpOMBvgw=="],
+
+    "@elysiajs/cors": ["@elysiajs/cors@1.4.1", "", { "peerDependencies": { "elysia": ">= 1.4.0" } }, "sha512-lQfad+F3r4mNwsxRKbXyJB8Jg43oAOXjRwn7sKUL6bcOW3KjUqUimTS+woNpO97efpzjtDE0tEjGk9DTw8lqTQ=="],
 
     "@good-food/contracts": ["@good-food/contracts@file:../good-food-contracts", { "dependencies": { "@ts-rest/core": "^3.51.0", "zod": "^3.25.76" }, "devDependencies": { "typescript": "^5.9.3" } }],
 
